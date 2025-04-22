@@ -1,0 +1,51 @@
+modules = ["java"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "WordFlingerGame"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "java_game"
+
+[[workflows.workflow]]
+name = "WordFlingerGame"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "javac WordFlingerGame.java game/*.java && java WordFlingerGame"
+
+[[workflows.workflow]]
+name = "java_game"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd /home/repl && javac WordFlingerGame.java game/*.java && java WordFlingerGame"
+
+[deployment]
+run = ["sh", "-c", "javac WordFlingerGame.java game/*.java && java WordFlingerGame"]
