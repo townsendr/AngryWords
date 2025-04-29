@@ -83,7 +83,23 @@ public abstract class GameObject {
      * Checks if this object collides with another object.
      */
     public boolean collidesWith(GameObject other) {
-        return getBounds().intersects(other.getBounds());
+        // Standard AABB (Axis-Aligned Bounding Box) collision detection
+        if (!getBounds().intersects(other.getBounds())) {
+            return false;
+        }
+        
+        // For more precise collision detection, check if the penetration depth is significant
+        double overlapX = (this.width + other.getWidth()) / 2 - 
+                Math.abs((this.x + this.width/2) - (other.getX() + other.getWidth()/2));
+        double overlapY = (this.height + other.getHeight()) / 2 - 
+                Math.abs((this.y + this.height/2) - (other.getY() + other.getHeight()/2));
+                
+        // If overlap is very small, don't consider it a collision - this prevents jittering
+        if (overlapX < 0.1 || overlapY < 0.1) {
+            return false;
+        }
+        
+        return true;
     }
     
     /**

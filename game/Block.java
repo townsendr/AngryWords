@@ -27,10 +27,47 @@ public class Block extends GameObject {
         
         super.update(deltaTime);
         
+        // Limit maximum velocity to prevent blocks from moving too fast
+        double maxVelocity = 300.0;
+        if (Math.abs(velocityX) > maxVelocity) {
+            velocityX = Math.signum(velocityX) * maxVelocity;
+        }
+        if (Math.abs(velocityY) > maxVelocity) {
+            velocityY = Math.signum(velocityY) * maxVelocity;
+        }
+        
         // Blocks that fall off the bottom of the screen are deactivated
         if (y > 500) {
             active = false;
         }
+    }
+    
+    /**
+     * Custom collision handling for block-to-block interactions
+     */
+    @Override
+    public boolean collidesWith(GameObject other) {
+        // Standard collision check using rectangles
+        if (!super.collidesWith(other)) {
+            return false;
+        }
+        
+        // For block-to-block collisions, add some additional handling
+        if (other instanceof Block) {
+            // Calculate penetration depth more accurately for blocks
+            double overlapX = (this.width + other.getWidth()) / 2 - 
+                Math.abs((this.x + this.width/2) - (other.getX() + other.getWidth()/2));
+            double overlapY = (this.height + other.getHeight()) / 2 - 
+                Math.abs((this.y + this.height/2) - (other.getY() + other.getHeight()/2));
+            
+            // If blocks are barely touching, don't consider it a collision
+            // This helps prevent blocks from getting stuck together
+            if (overlapX < 0.5 || overlapY < 0.5) {
+                return false;
+            }
+        }
+        
+        return true;
     }
     
     /**

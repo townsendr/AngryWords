@@ -83,6 +83,26 @@ public class Letter extends GameObject {
      */
     @Override
     public Rectangle2D.Double getBounds() {
-        return new Rectangle2D.Double(x, y, width, height);
+        // For more accurate collision with circular objects, we use a slightly smaller rectangle
+        // This helps prevent excessive overlapping with blocks
+        double padding = LETTER_SIZE * 0.2;
+        return new Rectangle2D.Double(x + padding, y + padding, width - padding * 2, height - padding * 2);
+    }
+    
+    /**
+     * Custom collision detection for circular letters.
+     */
+    @Override
+    public boolean collidesWith(GameObject other) {
+        if (other instanceof Letter) {
+            // For letter-to-letter collisions, use circle collision detection
+            Letter otherLetter = (Letter) other;
+            double dx = (this.x + this.width/2) - (otherLetter.x + otherLetter.width/2);
+            double dy = (this.y + this.height/2) - (otherLetter.y + otherLetter.height/2);
+            double distance = Math.sqrt(dx*dx + dy*dy);
+            return distance < (this.width/2 + otherLetter.width/2) * 0.9; // 90% of combined radii
+        }
+        // For other objects use default rectangle collision
+        return super.collidesWith(other);
     }
 }
